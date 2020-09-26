@@ -32,6 +32,7 @@ type
     CPU          : String[250];
     Memory       : String[10];
     OS           : String[250];
+    Resolution   : String[15];
   end;
 
 var
@@ -42,13 +43,14 @@ var
 
 procedure info.DoRun;
 begin
-  i.ComputerName := GetEnvironmentVariable('COMPUTERNAME');
+  i.ComputerName := SysUtils.GetEnvironmentVariable('COMPUTERNAME');
   i.Description := GetComputerNetDescription;
-  i.LoginNetwork := GetEnvironmentVariable('USERNAME');
+  i.LoginNetwork := SysUtils.GetEnvironmentVariable('USERNAME');
   i.IpAddress := GetIpAddress;
   i.CPU := GetProcessorInfo;
   i.Memory := FloatToStr(GetMemory);
   i.OS := GetOS;
+  i.Resolution := GetResolution;
 
   if HasOption('l', 'log') then begin
     FullPathToLogFile := GetOptionValue('l', 'log');
@@ -69,6 +71,7 @@ begin
   Writeln('CPU: ' + i.CPU);
   Writeln('Memory: ' + i.Memory);
   Writeln('OS: ' + i.OS);
+  Writeln('Resolution: ' + i.Resolution);
 end;
 
 procedure info.Log(FileName, Text: String);
@@ -90,7 +93,8 @@ procedure info.WriteToLog(FileName: String);
 var s: String;
 begin
   s := i.ComputerName + ';' + i.Description + ';' + i.LoginNetwork +
-    i.IpAddress + ';' + i.CPU + ';' + i.Memory + ';' + i.OS + ';';
+    i.IpAddress + ';' + i.CPU + ';' + i.Memory + ';' + i.OS + ';' +
+    i.Resolution;
   Log(FileName, s);
 end;
 

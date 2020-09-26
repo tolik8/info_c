@@ -28,6 +28,7 @@ function GetOS: String;
 function GetProcessorInfo: String;
 function IsWindows64: Boolean;
 function GetIpAddress: String;
+function GetResolution: String;
 
 function GlobalMemoryStatusEx(var Buffer: MEMORYSTATUSEX): Boolean;
   stdcall; external 'kernel32' Name 'GlobalMemoryStatusEx';
@@ -129,6 +130,12 @@ begin
   ipAddress := '';
   EnumInterfaces(ipAddress);
   Result := ipAddress;
+end;
+
+function GetResolution: String;
+begin
+  Result := IntToStr(GetSystemMetrics(SM_CXSCREEN)) + 'x' +
+    IntToStr(GetSystemMetrics(SM_CYSCREEN));
 end;
 
 end.
