@@ -32,6 +32,8 @@ type
     CPU          : String[250];
     Memory       : String[10];
     OS           : String[250];
+    Bit          : String[2];
+    OSVersion    : String[10];
     Resolution   : String[15];
   end;
 
@@ -50,13 +52,15 @@ begin
   i.CPU := GetProcessorInfo;
   i.Memory := FloatToStr(GetMemory);
   i.OS := GetOS;
+  i.Bit := GetBit;
+  i.OSVersion := GetOSVersion;
   i.Resolution := GetResolution;
 
   if HasOption('l', 'log') then begin
     FullPathToLogFile := GetOptionValue('l', 'log');
-  end;
+  end else
+    WriteToConsole;
 
-  WriteToConsole;
   if FullPathToLogFile <> '' then WriteToLog(FullPathToLogFile);
 
   Terminate;
@@ -71,6 +75,8 @@ begin
   Writeln('CPU: ' + i.CPU);
   Writeln('Memory: ' + i.Memory);
   Writeln('OS: ' + i.OS);
+  Writeln('Bit: ' + i.Bit);
+  Writeln('OSVersion: ' + i.OSVersion);
   Writeln('Resolution: ' + i.Resolution);
 end;
 
@@ -94,7 +100,7 @@ var s: String;
 begin
   s := i.ComputerName + ';' + i.Description + ';' + i.LoginNetwork +
     i.IpAddress + ';' + i.CPU + ';' + i.Memory + ';' + i.OS + ';' +
-    i.Resolution;
+    i.Bit + ';' + i.OSVersion + ';' + i.Resolution;
   Log(FileName, s);
 end;
 

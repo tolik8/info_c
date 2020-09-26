@@ -25,6 +25,8 @@ function GetComputerNetDescription: String;
 function GetRegData(Key, Name: String): String;
 function GetEnvironment(Name: String): String;
 function GetOS: String;
+function GetBit: String;
+function GetOSVersion: String;
 function GetProcessorInfo: String;
 function IsWindows64: Boolean;
 function GetIpAddress: String;
@@ -106,11 +108,19 @@ begin
 end;
 
 function GetOS: String;
-var arc: String;
 begin
-  if IsWindows64 = true then arc := '64' else arc := '32';
-  Result := GetRegData('SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'ProductName') + ' x' + arc + ' ' +
-    GetRegData('SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'ReleaseId');
+  Result := GetRegData('SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'ProductName');
+end;
+
+function GetBit: String;
+begin
+  Result := '32';
+  if IsWindows64 = true then Result := '64';
+end;
+
+function GetOSVersion: String;
+begin
+  Result := GetRegData('SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'ReleaseId');
 end;
 
 function GetProcessorInfo: String;
