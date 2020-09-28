@@ -98,7 +98,7 @@ end;
 procedure info.WriteToLog(FileName: String);
 var s: String;
 begin
-  s := i.ComputerName + ';' + i.Description + ';' + i.LoginNetwork +
+  s := i.ComputerName + ';' + i.Description + ';' + i.LoginNetwork + ';' +
     i.IpAddress + ';' + i.CPU + ';' + i.Memory + ';' + i.OS + ';' +
     i.Bit + ';' + i.OSVersion + ';' + i.Resolution;
   Log(FileName, s);
