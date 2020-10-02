@@ -6,8 +6,11 @@ uses
   {$IFDEF UNIX}{$IFDEF UseCThreads}
   cthreads,
   {$ENDIF}{$ENDIF}
-  Classes, SysUtils, CustApp, functions
+  Classes, SysUtils, CustApp, functions, fphttpclient, fpjson, jsonparser,
+  LConvEncoding, LazUTF8
   { you can add units after this };
+
+const url = 'http://10.19.19.121/json/get.php';
 
 type
 
@@ -20,6 +23,7 @@ type
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
     procedure WriteToConsole;
+    procedure HttpPost;
     procedure WriteToLog(FileName: String);
     procedure Log(FileName, Text: String);
   end;
@@ -56,10 +60,18 @@ begin
   i.OSVersion := GetOSVersion;
   i.Resolution := GetResolution;
 
+  if HasOption('h', 'help') then begin
+    WriteLn('Use parameters -l (-log) <path to log file>, -p (-post)');
+    Terminate;
+    Exit;
+  end;
+
   if HasOption('l', 'log') then begin
     FullPathToLogFile := GetOptionValue('l', 'log');
   end else
     WriteToConsole;
+
+  if HasOption('p', 'post') then HttpPost;
 
   if FullPathToLogFile <> '' then WriteToLog(FullPathToLogFile);
 
@@ -68,16 +80,43 @@ end;
 
 procedure info.WriteToConsole;
 begin
-  Writeln('ComputerName: ' + i.ComputerName);
-  Writeln('Description: ' + i.Description);
-  Writeln('LoginNetwork: ' + i.LoginNetwork);
-  Writeln('IP address: ' + i.IpAddress);
-  Writeln('CPU: ' + i.CPU);
-  Writeln('Memory: ' + i.Memory);
-  Writeln('OS: ' + i.OS);
-  Writeln('Bit: ' + i.Bit);
-  Writeln('OSVersion: ' + i.OSVersion);
-  Writeln('Resolution: ' + i.Resolution);
+  WriteLn('ComputerName: ' + i.ComputerName);
+  WriteLn('Description: ' + i.Description);
+  WriteLn('LoginNetwork: ' + i.LoginNetwork);
+  WriteLn('IP address: ' + i.IpAddress);
+  WriteLn('CPU: ' + i.CPU);
+  WriteLn('Memory: ' + i.Memory + ' Gb');
+  WriteLn('OS: ' + i.OS + ' x' + i.Bit + ' ' + i.OSVersion);
+  WriteLn('Resolution: ' + i.Resolution);
+end;
+
+procedure info.HttpPost;
+var
+  json: TJSONObject;
+  response: String;
+begin
+  json := TJSONObject.Create;
+  json.Add('key', '687F1AE6195AC76694EC6D94B29D7DE708CE2739');
+  json.Add('pc', i.ComputerName);
+  json.Add('description', i.Description);
+  json.Add('net_login', i.LoginNetwork);
+  json.Add('ip', i.IpAddress);
+  json.Add('cpu', i.CPU);
+  json.Add('memory', i.Memory);
+  json.Add('os', i.OS);
+  json.Add('bit', i.Bit);
+  json.Add('ver', i.OSVersion);
+  json.Add('resolution', i.Resolution);
+
+  With TFPHttpClient.Create(Nil) do
+  try
+    AddHeader('Content-Type', 'application/json');
+    RequestBody := TStringStream.Create(json.AsJSON);
+    response := Post(url);
+  finally
+    Free;
+  end;
+  WriteLn(response);
 end;
 
 procedure info.Log(FileName, Text: String);
