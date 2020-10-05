@@ -139,14 +139,19 @@ end;
 function GetIpAddresses: String;
 var
   ipAddresses: String;
-  list: TStringList;
+  list, new_list: TStringList;
+  i: Integer;
 begin
   ipAddresses := '';
   EnumInterfaces(ipAddresses);
   Delete(ipAddresses, Length(ipAddresses), 1);
   list := str_explode(',', ipAddresses);
   list.Sort;
-  Result := str_implode(',', list);
+  new_list := TStringList.Create;
+  for i:=0 to list.Count-1 do begin
+    if (list[i] <> '127.0.0.1') then new_list.Add(list[i]);
+  end;
+  Result := str_implode(',', new_list);
 end;
 
 function GetIpAddress(ipAddresses: String): String;

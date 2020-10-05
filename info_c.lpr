@@ -10,8 +10,8 @@ uses
   LConvEncoding, LazUTF8
   { you can add units after this };
 
-//const url = 'http://10.19.19.121/json/get.php';
-const url = 'http://alisa.loc/json/get.php';
+const url = 'http://10.19.19.121/json/get.php';
+//const url = 'http://alisa.loc/json/get.php';
 
 type
 
@@ -153,8 +153,8 @@ var s: String;
 begin
   s := i.ComputerName + ';' + i.Description + ';' + i.LoginNetwork + ';' +
     i.IpAddress + ';' + i.CPU + ';' + i.Memory + ';' + i.OS + ';' +
-    i.Bit + ';' + i.OSVersion + ';' + i.Resolution + ';' + i.IpAddresses;
-  Log(FileName, s);
+    i.Bit + ';' + i.OSVersion + ';' + i.Resolution + ';';
+  Log(FileName, UTF8ToCP1251(s) + UTF8ToCP1251(i.IpAddresses));
 end;
 
 constructor info.Create(TheOwner: TComponent);
