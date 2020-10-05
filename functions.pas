@@ -5,7 +5,7 @@ unit functions;
 interface
 
 uses
-  Classes, SysUtils, Windows, Registry, Math, USock;
+  Classes, SysUtils, Windows, Registry, Math, USock, StrUtils;
 
 type
     MEMORYSTATUSEX = record
@@ -29,8 +29,11 @@ function GetBit: String;
 function GetOSVersion: String;
 function GetProcessorInfo: String;
 function IsWindows64: Boolean;
-function GetIpAddress: String;
+function GetIpAddresses: String;
+function GetIpAddress(ipAddresses: String): String;
 function GetResolution: String;
+function str_explode(const delim, str: string): TStringList;
+function str_implode(delim: string; const list:TStringlist): string;
 
 function GlobalMemoryStatusEx(var Buffer: MEMORYSTATUSEX): Boolean;
   stdcall; external 'kernel32' Name 'GlobalMemoryStatusEx';
@@ -133,12 +136,30 @@ begin
   Result := GetRegData('SYSTEM\CurrentControlSet\Control\Session manager\Environment', Name);
 end;
 
-function GetIpAddress: String;
+function GetIpAddresses: String;
+var
+  ipAddresses: String;
+  list: TStringList;
+begin
+  ipAddresses := '';
+  EnumInterfaces(ipAddresses);
+  Delete(ipAddresses, Length(ipAddresses), 1);
+  list := str_explode(',', ipAddresses);
+  list.Sort;
+  Result := str_implode(',', list);
+end;
+
+function GetIpAddress(ipAddresses: String): String;
 var
   ipAddress: String;
+  list: TStringList;
+  i: Integer;
 begin
   ipAddress := '';
-  EnumInterfaces(ipAddress);
+  list := str_explode(',', ipAddresses);
+  for i:=0 to list.Count-1 do begin
+    if (copy(list[i],1,3) = '10.') then ipAddress := list[i];
+  end;
   Result := ipAddress;
 end;
 
@@ -146,6 +167,35 @@ function GetResolution: String;
 begin
   Result := IntToStr(GetSystemMetrics(SM_CXSCREEN)) + 'x' +
     IntToStr(GetSystemMetrics(SM_CYSCREEN));
+end;
+
+function str_explode(const delim, str: string): TStringList;
+    var offset: integer;
+        cur: integer;
+        dl: integer;
+begin
+    Result := TStringList.Create;
+    dl := Length(delim);
+    offset := 1;
+    while True do begin
+        cur := PosEx(delim, str, offset);
+        if cur > 0 then
+            Result.Add(Copy(str, offset, cur - offset))
+        else begin
+            Result.Add(Copy(str, offset, Length(str) - offset + 1));
+            Break
+        end;
+        offset := cur + dl;
+    end;
+end;
+
+function str_implode(delim: string; const list: TStringlist): string;
+    var i: integer;
+begin
+    result := '';
+    if list.Count = 0 then exit;
+    for i := 0 to list.Count - 2 do result := result + list[i] + delim;
+    result := result + list[list.Count-1];
 end;
 
 end.

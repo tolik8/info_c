@@ -98,7 +98,8 @@ begin
         pAddrInet := Buffer[i].iiAddress.addressIn; // IP адрес
         pAddrString := inet_ntoa(pAddrInet.sin_addr);
         //sInt := sInt + ' IP=' + pAddrString + ',';
-        if (copy(pAddrString,1,3) = '10.') then sInt := sInt + pAddrString;
+        //if (copy(pAddrString,1,3) = '10.') then sInt := sInt + pAddrString;
+        sInt := sInt + pAddrString + ',';
         {pAddrInet := Buffer[i].iiNetMask.addressIn; // Маска подсети
         pAddrString := inet_ntoa(pAddrInet.sin_addr);
         sInt := sInt + ' Mask=' + pAddrString + ',';
