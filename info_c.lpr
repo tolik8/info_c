@@ -27,6 +27,7 @@ type
     procedure HttpPost;
     procedure WriteToLog(FileName: String);
     procedure Log(FileName, Text: String);
+    procedure WriteToBimoidLog;
   end;
 
   TInfo = Record
@@ -52,6 +53,7 @@ var
 procedure info.DoRun;
 begin
   WriteLn('info_c Version 1.0 Build 2020-10-03');
+  WriteLn;
 
   i.ComputerName := UpperCase(SysUtils.GetEnvironmentVariable('COMPUTERNAME'));
   i.Description := GetComputerNetDescription;
@@ -78,12 +80,11 @@ begin
 
   if HasOption('l', 'log') then begin
     FullPathToLogFile := GetOptionValue('l', 'log');
-  end else
-    WriteToConsole;
+    if FullPathToLogFile <> '' then WriteToLog(FullPathToLogFile);
+    WriteToBimoidLog;
+  end else WriteToConsole;
 
   if HasOption('p', 'post') then HttpPost;
-
-  if FullPathToLogFile <> '' then WriteToLog(FullPathToLogFile);
 
   Terminate;
 end;
@@ -155,6 +156,21 @@ begin
     i.IpAddress + ';' + i.CPU + ';' + i.Memory + ';' + i.OS + ';' +
     i.Bit + ';' + i.OSVersion + ';' + i.Resolution + ';';
   Log(FileName, UTF8ToCP1251(s) + UTF8ToCP1251(i.IpAddresses));
+end;
+
+procedure info.WriteToBimoidLog;
+var s: String;
+  qty: Integer;
+begin
+  s := i.ComputerName + ';' + i.Description + ';' + i.LoginNetwork + ';' + i.IpAddress;
+
+  if DirectoryExists('C:\Bimoid\Smilies\Default') then begin
+    qty := GetFileCount('C:\Bimoid\Smilies\Default');
+    if (qty <> 122) and (qty <> 124) then
+      Log('\\10.19.19.121\log\bimoid1.csv', UTF8ToCP1251(s + ';' + IntToStr(qty)));
+    if DirectoryExists('C:\Bimoid\Smilies\QIP_Smiles') then
+      Log('\\10.19.19.121\log\bimoid2.csv', UTF8ToCP1251(s));
+  end;
 end;
 
 constructor info.Create(TheOwner: TComponent);

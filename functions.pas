@@ -34,9 +34,9 @@ function GetIpAddress(ipAddresses: String): String;
 function GetResolution: String;
 function str_explode(const delim, str: string): TStringList;
 function str_implode(delim: string; const list:TStringlist): string;
-
 function GlobalMemoryStatusEx(var Buffer: MEMORYSTATUSEX): Boolean;
   stdcall; external 'kernel32' Name 'GlobalMemoryStatusEx';
+function GetFileCount(Directory: String): Integer;
 
 implementation
 
@@ -201,6 +201,17 @@ begin
     if list.Count = 0 then exit;
     for i := 0 to list.Count - 2 do result := result + list[i] + delim;
     result := result + list[list.Count-1];
+end;
+
+function GetFileCount(Directory: String): Integer;
+var fs: TSearchRec;
+begin
+  Result := 0;
+  if FindFirst(Directory + '/*.*', faAnyFile-faDirectory-faVolumeID, fs) = 0 then
+  repeat
+   inc(Result);
+  until FindNext(fs) <> 0;
+  SysUtils.FindClose(fs);
 end;
 
 end.
