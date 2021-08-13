@@ -37,6 +37,7 @@ function str_implode(delim: string; const list:TStringlist): string;
 function GlobalMemoryStatusEx(var Buffer: MEMORYSTATUSEX): Boolean;
   stdcall; external 'kernel32' Name 'GlobalMemoryStatusEx';
 function GetFileCount(Directory: String): Integer;
+function GetDirCount(const DirName: String): Integer;
 
 implementation
 
@@ -209,9 +210,33 @@ begin
   Result := 0;
   if FindFirst(Directory + '/*.*', faAnyFile-faDirectory-faVolumeID, fs) = 0 then
   repeat
-   inc(Result);
+    inc(Result);
   until FindNext(fs) <> 0;
   SysUtils.FindClose(fs);
+end;
+
+function GetDirCount(const DirName: String): Integer;
+var
+  Path, SubDirName: String;
+  F: TSearchRec;
+begin
+  Path := DirName + '\*.*';
+  Result := 0;
+  if FindFirst(Path, faAnyFile, F) = 0 then begin
+    try
+      repeat
+        if (F.Attr and faDirectory <> 0) then begin
+          if (F.Name <> '.') and (F.Name <> '..') then begin
+            SubDirName := IncludeTrailingPathDelimiter(DirName) + F.Name;
+            //Result:= Result + 1 + ListFolders(SubDirName); /* Recursion */
+            Inc(Result);
+          end;
+        end;
+      until FindNext(F) <> 0;
+    finally
+      SysUtils.FindClose(F);
+    end;
+  end;
 end;
 
 end.

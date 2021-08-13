@@ -91,6 +91,7 @@ end;
 
 procedure info.WriteToConsole;
 begin
+  WriteLn('DateTime: ' + FormatDateTime('dd.mm.yyyy hh:nn:ss', Now));
   WriteLn('ComputerName: ' + i.ComputerName);
   WriteLn('Description: ' + i.Description);
   WriteLn('LoginNetwork: ' + i.LoginNetwork);
@@ -144,7 +145,7 @@ begin
     Rewrite(F);
     WriteLn(F, 'DT;PC;DESCRIPTION;NET_LOGIN;IP;CPU;MEMORY;OS;BIT;VER;RESOLUTION;IP_ADRESSES');
   end;
-  dt := DateToStr(Date) + ' ' + TimeToStr(Time);
+  dt := FormatDateTime('dd.mm.yyyy hh:nn:ss', Now);
   WriteLn(F, dt + ';' + text);
   CloseFile(F);
 end;
@@ -166,10 +167,15 @@ begin
 
   if DirectoryExists('C:\Bimoid\Smilies\Default') then begin
     qty := GetFileCount('C:\Bimoid\Smilies\Default');
-    if (qty <> 122) and (qty <> 124) then
+    if (qty < 120) then
       Log('\\10.19.19.121\log\bimoid1.csv', UTF8ToCP1251(s + ';' + IntToStr(qty)));
     if DirectoryExists('C:\Bimoid\Smilies\QIP_Smiles') then
       Log('\\10.19.19.121\log\bimoid2.csv', UTF8ToCP1251(s));
+    if DirectoryExists('C:\Bimoid\Users') then
+      if GetDirCount('C:\Bimoid\Users') > 1 then
+        Log('\\10.19.19.121\log\bimoid3.csv', UTF8ToCP1251(s));
+    if Not DirectoryExists('C:\Bimoid') then
+      Log('\\10.19.19.121\log\bimoid4.csv', UTF8ToCP1251(s));
   end;
 end;
 
